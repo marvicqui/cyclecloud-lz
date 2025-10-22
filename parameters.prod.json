@@ -3,44 +3,44 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "rgName": {
-      "value": "rg-lz-spaincentral-prod"
+      "value": "spaincentral-dev-caspian-rg-001"
     },
     "location": {
       "value": "spaincentral"
     },
     "uamiName": {
-      "value": "uami-lz-sc-prod"
+      "value": "spaincentral-dev-caspian-uai-001"
     },
     "subRoleDefinitionIds": {
       "value": [
-        "acdd72a7-3385-48ef-bd42-f606fba81ae7",
-        "b24988ac-6180-42a0-ab88-20f7382dd24c",
-        "749f88d5-cbae-40b8-bcfc-e573ddc772fa"
+        "b24988ac-6180-42a0-ab88-20f7382dd24c"
+        
       ]
     },
     "vnetAddressPrefixes": {
       "value": [
-        "10.61.0.0/16"
+        "10.202.16.0/21"
       ]
     },
     "subnets": {
       "value": {
-        "AzureBastionSubnet": "10.61.0.0/26",
-        "snet-workload": "10.61.1.0/24",
-        "snet-mysql": "10.61.2.0/26"
+        "AzureBastionSubnet": "10.202.17.0/24",
+        "CycleCloudSubnet": "10.202.16.0/24",
+        "ComputeNodesSubnet": "10.202.20.0/22",
+        "AzureNetAppFilesSubnet": "10.202.18.0/24"
       }
     },
     "vwanName": {
-      "value": "vwan-lz-sc-prod"
+      "value": "spaincentral-dev-caspian-vwan-001"
     },
     "vhubName": {
-      "value": "vhub-lz-sc-prod"
+      "value": "spaincentral-dev-caspian-vhub-001"
     },
     "p2sName": {
-      "value": "p2s-lz-sc-prod"
+      "value": "spaincentral-dev-caspian-p2s-001"
     },
     "vpnServerConfigName": {
-      "value": "vpnsc-lz-sc-prod"
+      "value": "spaincentral-dev-caspian-p2s-001"
     },
     "useAadAuthForP2S": {
       "value": true
@@ -52,19 +52,19 @@
       "value": "00000000-0000-0000-0000-000000000000"
     },
     "aadIssuer": {
-      "value": "https://sts.windows.net/00000000-0000-0000-0000-000000000000/"
+      "value": "https://sts.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/"
     },
     "p2sRootCerts": {
       "value": []
     },
     "fwPolicyName": {
-      "value": "fwp-lz-sc-prod"
+      "value": "spaincentral-dev-caspian-policy-001"
     },
     "fwRuleCollections": {
       "value": [
         {
-          "name": "rcg-app-default",
-          "priority": 100,
+          "name": "DefaultNetworkRuleCollectionGroup",
+          "priority": 200,
           "applicationRuleCollections": [
             {
               "name": "app-allow-wu",
@@ -86,12 +86,81 @@
           ],
           "networkRuleCollections": [
             {
-              "name": "net-allow-dns",
-              "priority": 110,
+              "name": "vpn",
+              "priority": 1000,
               "action": "Allow",
               "rules": [
                 {
-                  "name": "allow-dns",
+                  "name": "AllowedTraffic",
+                  "ipProtocols": [
+                    "UDP",
+                    "TCP"
+                  ],
+                  "sourceAddresses": [
+                    "10.202.0.0/24"
+                  ],
+                  "destinationAddresses": [
+                    "10.202.16.0/21"
+                  ],
+                  "destinationPorts": [
+                    "*"
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "infra",
+              "priority": 1000,
+              "action": "Allow",
+              "rules": [
+                {
+                  "name": "AllowedTraffic",
+                  "ipProtocols": [
+                    "UDP",
+                    "TCP"
+                  ],
+                  "sourceAddresses": [
+                    "10.202.16.0/21"
+                  ],
+                  "destinationAddresses": [
+                    "*"
+                  ],
+                  "destinationPorts": [
+                    "*"
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "vpn",
+              "priority": 2000,
+              "action": "Deny",
+              "rules": [
+                {
+                  "name": "AllowedTraffic",
+                  "ipProtocols": [
+                    "UDP",
+                    "TCP"
+                  ],
+                  "sourceAddresses": [
+                    "10.202.2.0/24"
+                  ],
+                  "destinationAddresses": [
+                    "*"
+                  ],
+                  "destinationPorts": [
+                    "*"
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "catchall",
+              "priority": 2000,
+              "action": "Deny",
+              "rules": [
+                {
+                  "name": "AllowedTraffic",
                   "ipProtocols": [
                     "UDP",
                     "TCP"
@@ -103,7 +172,7 @@
                     "*"
                   ],
                   "destinationPorts": [
-                    "53"
+                    "*"
                   ]
                 }
               ]
@@ -113,14 +182,14 @@
       ]
     },
     "kvName": {
-      "value": "kv-lz-sc-prod-001"
+      "value": "spainc-dev-caspian-kv-01"
     },
     "saName": {
-      "value": "salzscprod001xyz"
+      "value": "spaincndevcaspiansa01"
     },
     "mysql": {
       "value": {
-        "name": "mysql-lz-sc-prod-001",
+        "name": "spaincentral-dev-caspianqa-mysql-001",
         "version": "8.0.21",
         "sku": "Standard_D2ds_v4",
         "tier": "GeneralPurpose",
@@ -133,13 +202,10 @@
     "mysqlAdminPassword": {
       "value": "P@ssw0rd!12345"
     },
-    "grafanaName": {
-      "value": "grafana-lz-sc-prod"
-    },
     "rgRoleDefinitionIds": {
       "value": [
-        "acdd72a7-3385-48ef-bd42-f606fba81ae7",
-        "b24988ac-6180-42a0-ab88-20f7382dd24c"
+        "00482a5a-887f-4fb3-b363-3b7fe8e74483",
+        "ba92f5b4-2d11-453d-a403-e96b0029c9fe"
       ]
     }
   }

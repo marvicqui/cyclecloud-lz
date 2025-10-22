@@ -1,5 +1,4 @@
 // modules/keyvault.bicep
-// Key Vault con RBAC y soft delete habilitado
 
 targetScope = 'resourceGroup'
 
@@ -22,4 +21,4 @@ resource kv 'Microsoft.KeyVault/vaults@2024-12-01-preview' = {
 
 output kvName string = kv.name
 output kvId string = kv.id
-output kvUri string = 'https://${kv.name}.vault.azure.net/'
+output kvUri string = 'https://${kv.name}.${environment().suffixes.keyvaultDns}/'

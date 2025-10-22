@@ -1,16 +1,14 @@
 // rg.lz.bicep
-// Despliega los recursos dentro del RG y roles a nivel RG
 
 targetScope = 'resourceGroup'
 
 param location string
 param uamiId string
 
-// Red
 param vnetAddressPrefixes array
 param subnets object
+param mysqlSubnetName string = 'CycleCloudSubnet'
 
-// vWAN
 param vwanName string
 param vhubName string
 param p2sName string
@@ -21,25 +19,19 @@ param aadTenantId string
 param aadAudience string
 param aadIssuer string
 
-// Firewall Policy
 param fwPolicyName string
 param fwRuleCollections array
 
-// Key Vault
 param kvName string
-
-// Storage
 param saName string
 
-// MySQL
 param mysql object
 @secure()
 param mysqlAdminPassword string
 
-// Grafana
-param grafanaName string
+// grafana opcional: si no lo usas, déjalo vacío y no lo desplegamos
+param grafanaName string = ''
 
-// Roles a nivel RG para UAMI
 param rgRoleDefinitionIds array
 
 module network './modules/network.bicep' = {
@@ -48,6 +40,7 @@ module network './modules/network.bicep' = {
     location: location
     vnetAddressPrefixes: vnetAddressPrefixes
     subnets: subnets
+    mysqlSubnetName: mysqlSubnetName
   }
 }
 
@@ -77,7 +70,6 @@ module fwPolicy './modules/firewallPolicy.bicep' = {
   }
 }
 
-// Asociación del Firewall Policy al vHub (best-effort; depende de API/Región)
 module fwPolicyAssoc './modules/fwPolicyAssociation.bicep' = {
   name: 'fwPolicyAssoc'
   params: {
@@ -89,18 +81,12 @@ module fwPolicyAssoc './modules/fwPolicyAssociation.bicep' = {
 
 module kv './modules/keyvault.bicep' = {
   name: 'kv'
-  params: {
-    location: location
-    kvName: kvName
-  }
+  params: { location: location, kvName: kvName }
 }
 
 module sa './modules/storage.bicep' = {
   name: 'storage'
-  params: {
-    location: location
-    saName: saName
-  }
+  params: { location: location, saName: saName }
 }
 
 module mysqlMod './modules/mysql.bicep' = {
@@ -113,12 +99,9 @@ module mysqlMod './modules/mysql.bicep' = {
   }
 }
 
-module graf './modules/grafana.bicep' = {
+module graf './modules/grafana.bicep' = if (!empty(grafanaName)) {
   name: 'grafana'
-  params: {
-    location: location
-    grafanaName: grafanaName
-  }
+  params: { location: location, grafanaName: grafanaName }
 }
 
 module rgRoles './modules/identity.rgRoles.bicep' = {
@@ -129,10 +112,9 @@ module rgRoles './modules/identity.rgRoles.bicep' = {
   }
 }
 
-// Outputs útiles
 output vnetId string = network.outputs.vnetId
 output vhubId string = vwan.outputs.vhubId
 output keyVaultName string = kv.outputs.kvName
 output storageAccountName string = sa.outputs.saName
 output mysqlFqdn string = mysqlMod.outputs.fqdn
-output grafanaEndpoint string = graf.outputs.endpoint
+output grafanaEndpoint string = !empty(grafanaName) ? graf.outputs.endpoint : ''

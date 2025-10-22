@@ -1,12 +1,10 @@
 // modules/fwPolicyAssociation.bicep
-// Asociación del Firewall Policy al Virtual Hub (Secure vHub).
-// Puede variar por apiVersion/región. Si da error, asócielo vía Azure Firewall Manager.
+// Asocia Firewall Policy al vHub (puede variar por API/región)
 
 targetScope = 'resourceGroup'
 
 param vhubId string
 param firewallPolicyId string
-@description('Habilitar la asociación (true/false)')
 param enabled bool = true
 
 resource assoc 'Microsoft.Network/virtualHubs/hubFirewallPolicies@2023-11-01' = if (enabled) {

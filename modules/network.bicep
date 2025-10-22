@@ -1,5 +1,5 @@
 // modules/network.bicep
-// VNet + Subnets + NSGs + Delegación para MySQL Flexible Server
+// VNet + Subnets + NSGs + Delegación en la subnet indicada
 
 targetScope = 'resourceGroup'
 
@@ -7,9 +7,13 @@ param location string
 param vnetAddressPrefixes array
 @description('Map: subnetName -> prefix')
 param subnets object
+@description('Nombre de la subnet a delegar para MySQL Flexible Server')
+param mysqlSubnetName string = 'CycleCloudSubnet'
 
-resource nsgs 'Microsoft.Network/networkSecurityGroups@2023-11-01' = [for subnetName in union([], keys(subnets)): {
-  name: 'nsg-${subnetName}'
+var subnetItems = items(subnets)
+
+resource nsgs 'Microsoft.Network/networkSecurityGroups@2023-11-01' = [for (sn, i) in subnetItems: {
+  name: 'nsg-${sn.key}'
   location: location
 }]
 
@@ -20,15 +24,14 @@ resource vnet 'Microsoft.Network/virtualNetworks@2023-11-01' = {
     addressSpace: {
       addressPrefixes: vnetAddressPrefixes
     }
-    subnets: [for subnetName in union([], keys(subnets)): {
-      name: subnetName
+    subnets: [for (sn, i) in subnetItems: {
+      name: sn.key
       properties: {
-        addressPrefix: subnets[subnetName]
+        addressPrefix: string(sn.value)
         networkSecurityGroup: {
-          id: nsgs[arrayIndex(keys(subnets), subnetName)].id
+          id: nsgs[i].id
         }
-        // Delegación específica para MySQL
-        delegations: contains(keys(subnets), 'snet-mysql') && subnetName == 'snet-mysql' ? [
+        delegations: sn.key == mysqlSubnetName ? [
           {
             name: 'dlg-mysql'
             properties: {
@@ -41,7 +44,5 @@ resource vnet 'Microsoft.Network/virtualNetworks@2023-11-01' = {
   }
 }
 
-var mysqlSubnet = contains(keys(subnets), 'snet-mysql') ? last(vnet.properties.subnets[? name == 'snet-mysql']) : null
-
 output vnetId string = vnet.id
-output mysqlSubnetId string = mysqlSubnet == null ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', vnet.name, 'snet-mysql')
+output mysqlSubnetId string = resourceId('Microsoft.Network/virtualNetworks/subnets', vnet.name, mysqlSubnetName)

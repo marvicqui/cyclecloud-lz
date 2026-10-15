@@ -65,7 +65,8 @@ resource p2s 'Microsoft.Network/p2sVpnGateways@2023-11-01' = {
 }
 
 resource hvnConn 'Microsoft.Network/virtualHubs/hubVirtualNetworkConnections@2023-11-01' = {
-  name: '${vhub.name}/conn-to-vnet'
+  parent: vhub
+  name: 'conn-to-vnet'
   properties: {
     remoteVirtualNetwork: { id: vnetId }
     allowHubToRemoteVnetTransit: true

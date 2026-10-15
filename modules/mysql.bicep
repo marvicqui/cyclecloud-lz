@@ -1,7 +1,5 @@
 // modules/mysql.bicep
-// MySQL Flexible Server: soporta modo privado (subnet delegada) u público (sin subnet).
-// - Si delegatedSubnetId == ''  => publicNetworkAccess = 'Enabled' y puedes crear firewallRules.
-// - Si delegatedSubnetId != ''  => publicNetworkAccess = 'Disabled' y usa la subnet delegada.
+// VNet-integrated MySQL only. This composition has no public-network fallback.
 
 targetScope = 'resourceGroup'
 
@@ -13,14 +11,10 @@ param settings object
 @secure()
 param adminPassword string
 
-@description('Subnet delegada (opcional). Si vacío, se despliega público')
-param delegatedSubnetId string = ''
-
-@description('Firewall rules para modo público (opcional). Cada item: { name, startIpAddress, endIpAddress }')
-param firewallRules array = []
-
-var isPrivate = !empty(delegatedSubnetId)
-var effectivePublicAccess = isPrivate ? 'Disabled' : 'Enabled'
+@minLength(1)
+param delegatedSubnetId string
+@minLength(1)
+param privateDnsZoneId string
 
 resource mysql 'Microsoft.DBforMySQL/flexibleServers@2023-12-30' = {
   name: settings.name
@@ -46,22 +40,13 @@ resource mysql 'Microsoft.DBforMySQL/flexibleServers@2023-12-30' = {
       mode: 'Disabled'
     }
     network: {
-      // Si viene vacío, ARM ignora los nulls
-      delegatedSubnetResourceId: isPrivate ? delegatedSubnetId : null
-      publicNetworkAccess: effectivePublicAccess // 'Enabled'|'Disabled'
+      delegatedSubnetResourceId: delegatedSubnetId
+      privateDnsZoneResourceId: privateDnsZoneId
+      publicNetworkAccess: 'Disabled'
     }
   }
 }
 
-// Reglas de firewall sólo en modo público
-resource rules 'Microsoft.DBforMySQL/flexibleServers/firewallRules@2023-12-30' = [for r in firewallRules: if (!isPrivate) {
-  name: '${mysql.name}/${r.name}'
-  properties: {
-    startIpAddress: r.startIpAddress
-    endIpAddress: r.endIpAddress
-  }
-}]
-
-output fqdn string = '${mysql.name}.mysql.database.azure.com'
+output fqdn string = mysql.properties.fullyQualifiedDomainName
 output serverId string = mysql.id
-output publicNetworkAccess string = effectivePublicAccess
+output publicNetworkAccess string = 'Disabled'

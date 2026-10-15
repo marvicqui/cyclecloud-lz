@@ -22,42 +22,43 @@ var normalizedGroups = [for rcg in fwRuleCollections: {
   name: rcg.name
   priority: rcg.priority
   ruleCollections: concat(
-    empty(rcg.applicationRuleCollections) ? [] : [for arc in rcg.applicationRuleCollections: {
+    map(rcg.?applicationRuleCollections ?? [], arc => {
       ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
       name: arc.name
       priority: arc.priority
       action: { type: arc.action }
-      rules: [for r in arc.rules: {
+      rules: map(arc.rules, r => {
         ruleType: 'ApplicationRule'
         name: r.name
         sourceAddresses: r.sourceAddresses
-        protocols: empty(r.protocols) ? [] : [for p in r.protocols: {
+        protocols: map(r.?protocols ?? [], p => {
           protocolType: p.protocolType
           port: p.port
-        }]
-        fqdnTags: r.fqdnTags
-        targetFqdns: r.targetFqdns
-      }]
-    }],
-    empty(rcg.networkRuleCollections) ? [] : [for nrc in rcg.networkRuleCollections: {
+        })
+        fqdnTags: r.?fqdnTags ?? []
+        targetFqdns: r.?targetFqdns ?? []
+      })
+    }),
+    map(rcg.?networkRuleCollections ?? [], nrc => {
       ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
       name: nrc.name
       priority: nrc.priority
       action: { type: nrc.action }
-      rules: [for r in nrc.rules: {
+      rules: map(nrc.rules, r => {
         ruleType: 'NetworkRule'
         name: r.name
         ipProtocols: r.ipProtocols
         sourceAddresses: r.sourceAddresses
         destinationAddresses: r.destinationAddresses
         destinationPorts: r.destinationPorts
-      }]
-    }]
+      })
+    })
   )
 }]
 
-resource rcgs 'Microsoft.Network/firewallPolicies/ruleCollectionGroups@2023-11-01' = [for (rcg, i) in normalizedGroups: {
-  name: '${fwp.name}/${rcg.name}'
+resource rcgs 'Microsoft.Network/firewallPolicies/ruleCollectionGroups@2023-11-01' = [for rcg in normalizedGroups: {
+  parent: fwp
+  name: rcg.name
   properties: {
     priority: rcg.priority
     ruleCollections: rcg.ruleCollections

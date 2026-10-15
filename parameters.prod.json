@@ -3,44 +3,40 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "rgName": {
-      "value": "spaincentral-dev-caspian-rg-001"
+      "value": "demo-prod-rgname"
     },
     "location": {
       "value": "spaincentral"
     },
     "uamiName": {
-      "value": "spaincentral-dev-caspian-uai-001"
+      "value": "demo-prod-uaminame"
     },
     "subRoleDefinitionIds": {
-      "value": [
-        "b24988ac-6180-42a0-ab88-20f7382dd24c"
-        
-      ]
+      "value": []
     },
     "vnetAddressPrefixes": {
       "value": [
-        "10.202.16.0/21"
+        "10.70.0.0/16"
       ]
     },
     "subnets": {
       "value": {
-        "AzureBastionSubnet": "10.202.17.0/24",
-        "CycleCloudSubnet": "10.202.16.0/24",
-        "ComputeNodesSubnet": "10.202.20.0/22",
-        "AzureNetAppFilesSubnet": "10.202.18.0/24"
+        "AzureBastionSubnet": "10.70.0.0/26",
+        "snet-workload": "10.70.1.0/24",
+        "snet-mysql": "10.70.2.0/26"
       }
     },
     "vwanName": {
-      "value": "spaincentral-dev-caspian-vwan-001"
+      "value": "demo-prod-vwanname"
     },
     "vhubName": {
-      "value": "spaincentral-dev-caspian-vhub-001"
+      "value": "demo-prod-vhubname"
     },
     "p2sName": {
-      "value": "spaincentral-dev-caspian-p2s-001"
+      "value": "demo-prod-p2sname"
     },
     "vpnServerConfigName": {
-      "value": "spaincentral-dev-caspian-p2s-001"
+      "value": "demo-prod-vpnserverconfigname"
     },
     "useAadAuthForP2S": {
       "value": true
@@ -52,144 +48,26 @@
       "value": "00000000-0000-0000-0000-000000000000"
     },
     "aadIssuer": {
-      "value": "https://sts.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/"
+      "value": "https://sts.windows.net/00000000-0000-0000-0000-000000000000/"
     },
     "p2sRootCerts": {
       "value": []
     },
     "fwPolicyName": {
-      "value": "spaincentral-dev-caspian-policy-001"
+      "value": "demo-prod-fwpolicyname"
     },
     "fwRuleCollections": {
-      "value": [
-        {
-          "name": "DefaultNetworkRuleCollectionGroup",
-          "priority": 200,
-          "applicationRuleCollections": [
-            {
-              "name": "app-allow-wu",
-              "priority": 100,
-              "action": "Allow",
-              "rules": [
-                {
-                  "name": "allow-windows-update",
-                  "sourceAddresses": [
-                    "*"
-                  ],
-                  "fqdnTags": [
-                    "WindowsUpdate"
-                  ],
-                  "protocols": []
-                }
-              ]
-            }
-          ],
-          "networkRuleCollections": [
-            {
-              "name": "vpn",
-              "priority": 1000,
-              "action": "Allow",
-              "rules": [
-                {
-                  "name": "AllowedTraffic",
-                  "ipProtocols": [
-                    "UDP",
-                    "TCP"
-                  ],
-                  "sourceAddresses": [
-                    "10.202.0.0/24"
-                  ],
-                  "destinationAddresses": [
-                    "10.202.16.0/21"
-                  ],
-                  "destinationPorts": [
-                    "*"
-                  ]
-                }
-              ]
-            },
-            {
-              "name": "infra",
-              "priority": 1000,
-              "action": "Allow",
-              "rules": [
-                {
-                  "name": "AllowedTraffic",
-                  "ipProtocols": [
-                    "UDP",
-                    "TCP"
-                  ],
-                  "sourceAddresses": [
-                    "10.202.16.0/21"
-                  ],
-                  "destinationAddresses": [
-                    "*"
-                  ],
-                  "destinationPorts": [
-                    "*"
-                  ]
-                }
-              ]
-            },
-            {
-              "name": "vpn",
-              "priority": 2000,
-              "action": "Deny",
-              "rules": [
-                {
-                  "name": "AllowedTraffic",
-                  "ipProtocols": [
-                    "UDP",
-                    "TCP"
-                  ],
-                  "sourceAddresses": [
-                    "10.202.2.0/24"
-                  ],
-                  "destinationAddresses": [
-                    "*"
-                  ],
-                  "destinationPorts": [
-                    "*"
-                  ]
-                }
-              ]
-            },
-            {
-              "name": "catchall",
-              "priority": 2000,
-              "action": "Deny",
-              "rules": [
-                {
-                  "name": "AllowedTraffic",
-                  "ipProtocols": [
-                    "UDP",
-                    "TCP"
-                  ],
-                  "sourceAddresses": [
-                    "*"
-                  ],
-                  "destinationAddresses": [
-                    "*"
-                  ],
-                  "destinationPorts": [
-                    "*"
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ]
+      "value": []
     },
     "kvName": {
-      "value": "spainc-dev-caspian-kv-01"
+      "value": "demo-prod-kvname"
     },
     "saName": {
-      "value": "spaincndevcaspiansa01"
+      "value": "demoprodstorage001"
     },
     "mysql": {
       "value": {
-        "name": "spaincentral-dev-caspianqa-mysql-001",
+        "name": "demo-prod-mysql",
         "version": "8.0.21",
         "sku": "Standard_D2ds_v4",
         "tier": "GeneralPurpose",
@@ -199,14 +77,17 @@
         "administratorLogin": "mysqladmin"
       }
     },
-    "mysqlAdminPassword": {
-      "value": "P@ssw0rd!12345"
+    "grafanaName": {
+      "value": ""
     },
     "rgRoleDefinitionIds": {
-      "value": [
-        "00482a5a-887f-4fb3-b363-3b7fe8e74483",
-        "ba92f5b4-2d11-453d-a403-e96b0029c9fe"
-      ]
+      "value": []
+    },
+    "mysqlSubnetName": {
+      "value": "snet-mysql"
+    },
+    "mysqlPrivateDnsZoneName": {
+      "value": "demo-prod.mysql.database.azure.com"
     }
   }
 }

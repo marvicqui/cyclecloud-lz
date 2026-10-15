@@ -8,7 +8,7 @@ param vnetAddressPrefixes array
 @description('Map: subnetName -> prefix')
 param subnets object
 @description('Nombre de la subnet a delegar para MySQL Flexible Server')
-param mysqlSubnetName string = 'CycleCloudSubnet'
+param mysqlSubnetName string = 'snet-mysql'
 
 var subnetItems = items(subnets)
 

@@ -6,7 +6,7 @@ targetScope = 'resourceGroup'
 param location string
 param grafanaName string
 
-resource graf 'Microsoft.Dashboard/grafana@2023-10-01' = {
+resource graf 'Microsoft.Dashboard/grafana@2024-10-01' = {
   name: grafanaName
   location: location
   identity: { type: 'SystemAssigned' }
@@ -19,5 +19,5 @@ resource graf 'Microsoft.Dashboard/grafana@2023-10-01' = {
   sku: { name: 'Standard' }
 }
 
-output endpoint string = 'https://${graf.name}.grafana.azure.com'
+output endpoint string = graf.properties.endpoint
 output grafanaId string = graf.id

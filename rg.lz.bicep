@@ -3,11 +3,12 @@
 targetScope = 'resourceGroup'
 
 param location string
-param uamiId string
+param uamiPrincipalId string
 
 param vnetAddressPrefixes array
 param subnets object
-param mysqlSubnetName string = 'CycleCloudSubnet'
+param mysqlSubnetName string = 'snet-mysql'
+param mysqlPrivateDnsZoneName string
 
 param vwanName string
 param vhubName string
@@ -70,14 +71,8 @@ module fwPolicy './modules/firewallPolicy.bicep' = {
   }
 }
 
-module fwPolicyAssoc './modules/fwPolicyAssociation.bicep' = {
-  name: 'fwPolicyAssoc'
-  params: {
-    vhubId: vwan.outputs.vhubId
-    firewallPolicyId: fwPolicy.outputs.firewallPolicyId
-    enabled: true
-  }
-}
+// No Azure Firewall or validated hub policy attachment is implemented.
+// modules/fwPolicyAssociation.bicep is retained only as an unvalidated draft.
 
 module kv './modules/keyvault.bicep' = {
   name: 'kv'
@@ -89,6 +84,14 @@ module sa './modules/storage.bicep' = {
   params: { location: location, saName: saName }
 }
 
+module mysqlDns './modules/mysqlDns.bicep' = {
+  name: 'mysql-dns'
+  params: {
+    zoneName: mysqlPrivateDnsZoneName
+    vnetId: network.outputs.vnetId
+  }
+}
+
 module mysqlMod './modules/mysql.bicep' = {
   name: 'mysql'
   params: {
@@ -96,6 +99,7 @@ module mysqlMod './modules/mysql.bicep' = {
     settings: mysql
     adminPassword: mysqlAdminPassword
     delegatedSubnetId: network.outputs.mysqlSubnetId
+    privateDnsZoneId: mysqlDns.outputs.zoneId
   }
 }
 
@@ -107,7 +111,7 @@ module graf './modules/grafana.bicep' = if (!empty(grafanaName)) {
 module rgRoles './modules/identity.rgRoles.bicep' = {
   name: 'rgRoles'
   params: {
-    principalId: reference(uamiId, '2023-01-31-preview').principalId
+    principalId: uamiPrincipalId
     roleDefinitionIds: rgRoleDefinitionIds
   }
 }
@@ -117,4 +121,5 @@ output vhubId string = vwan.outputs.vhubId
 output keyVaultName string = kv.outputs.kvName
 output storageAccountName string = sa.outputs.saName
 output mysqlFqdn string = mysqlMod.outputs.fqdn
-output grafanaEndpoint string = !empty(grafanaName) ? graf.outputs.endpoint : ''
+output mysqlPrivateDnsZoneId string = mysqlDns.outputs.zoneId
+output grafanaEndpoint string = !empty(grafanaName) ? graf!.outputs.endpoint : ''

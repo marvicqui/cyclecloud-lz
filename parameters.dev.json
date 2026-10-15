@@ -3,20 +3,16 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "rgName": {
-      "value": "rg-lz-spaincentral"
+      "value": "demo-dev-rgname"
     },
     "location": {
       "value": "spaincentral"
     },
     "uamiName": {
-      "value": "uami-lz-sc"
+      "value": "demo-dev-uaminame"
     },
     "subRoleDefinitionIds": {
-      "value": [
-        "acdd72a7-3385-48ef-bd42-f606fba81ae7",
-        "b24988ac-6180-42a0-ab88-20f7382dd24c",
-        "749f88d5-cbae-40b8-bcfc-e573ddc772fa"
-      ]
+      "value": []
     },
     "vnetAddressPrefixes": {
       "value": [
@@ -31,16 +27,16 @@
       }
     },
     "vwanName": {
-      "value": "vwan-lz-sc"
+      "value": "demo-dev-vwanname"
     },
     "vhubName": {
-      "value": "vhub-lz-sc"
+      "value": "demo-dev-vhubname"
     },
     "p2sName": {
-      "value": "p2s-lz-sc"
+      "value": "demo-dev-p2sname"
     },
     "vpnServerConfigName": {
-      "value": "vpnsc-lz-sc"
+      "value": "demo-dev-vpnserverconfigname"
     },
     "useAadAuthForP2S": {
       "value": true
@@ -58,69 +54,20 @@
       "value": []
     },
     "fwPolicyName": {
-      "value": "fwp-lz-sc"
+      "value": "demo-dev-fwpolicyname"
     },
     "fwRuleCollections": {
-      "value": [
-        {
-          "name": "rcg-app-default",
-          "priority": 100,
-          "applicationRuleCollections": [
-            {
-              "name": "app-allow-wu",
-              "priority": 100,
-              "action": "Allow",
-              "rules": [
-                {
-                  "name": "allow-windows-update",
-                  "sourceAddresses": [
-                    "*"
-                  ],
-                  "fqdnTags": [
-                    "WindowsUpdate"
-                  ],
-                  "protocols": []
-                }
-              ]
-            }
-          ],
-          "networkRuleCollections": [
-            {
-              "name": "net-allow-dns",
-              "priority": 110,
-              "action": "Allow",
-              "rules": [
-                {
-                  "name": "allow-dns",
-                  "ipProtocols": [
-                    "UDP",
-                    "TCP"
-                  ],
-                  "sourceAddresses": [
-                    "*"
-                  ],
-                  "destinationAddresses": [
-                    "*"
-                  ],
-                  "destinationPorts": [
-                    "53"
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ]
+      "value": []
     },
     "kvName": {
-      "value": "kv-lz-sc-001"
+      "value": "demo-dev-kvname"
     },
     "saName": {
-      "value": "salzsc001xyz"
+      "value": "demodevstorage001"
     },
     "mysql": {
       "value": {
-        "name": "mysql-lz-sc-001",
+        "name": "demo-dev-mysql",
         "version": "8.0.21",
         "sku": "Standard_D2ds_v4",
         "tier": "GeneralPurpose",
@@ -130,17 +77,17 @@
         "administratorLogin": "mysqladmin"
       }
     },
-    "mysqlAdminPassword": {
-      "value": "P@ssw0rd!12345"
-    },
     "grafanaName": {
-      "value": "grafana-lz-sc"
+      "value": ""
     },
     "rgRoleDefinitionIds": {
-      "value": [
-        "acdd72a7-3385-48ef-bd42-f606fba81ae7",
-        "b24988ac-6180-42a0-ab88-20f7382dd24c"
-      ]
+      "value": []
+    },
+    "mysqlSubnetName": {
+      "value": "snet-mysql"
+    },
+    "mysqlPrivateDnsZoneName": {
+      "value": "demo-dev.mysql.database.azure.com"
     }
   }
 }
